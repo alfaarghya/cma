@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# List of unwanted lock files
+check_files="package-lock.json pnpm-lock.yaml bun.lockb"
+
+# Check for unwanted lock files in staged changes
+for file in $check_files; do
+    if git diff --cached --name-only | grep -qE "^$file$"; then
+        echo "❌ Error: Commits containing '$file' are not allowed. Please use Yarn and remove this file from your commit."
+        exit 1
+    fi
+done
+
+echo "✅ Pre-commit checks passed!"

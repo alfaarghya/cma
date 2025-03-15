@@ -1,0 +1,40 @@
+{
+  "name": "cma",
+  "description": "it's a Chat Management Application",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "db:migrate": "cd packages/db && yarn prisma migrate dev --name init && cd ../..",
+    "db:generate": "cd packages/db && yarn prisma generate && cd ../..",
+    "db:seed": "cd packages/db && yarn prisma db seed && cd ../..",
+    "db:show": "cd packages/db && yarn prisma studio && cd ../..",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3",
+    "turbo": "^2.4.4",
+    "typescript": "5.8.2",
+    "husky": "^9.1.7"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": "eslint --fix",
+    "*.{json,md,css,scss}": "prettier --write"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "yarn@1.22.22",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "dependencies": {
+    "eslint": "^9.20.1",
+    "lint-staged": "^15.4.3",
+    "husky": "^9.1.7"
+  }
+}
