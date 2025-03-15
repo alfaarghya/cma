@@ -4,8 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "exports": {
-    "./serverTypes": "./src/serverTypes.ts",
-    "./clientTypes": "./src/clientTypes.ts"
+    "./serverTypes": "./src/server/index.ts",
+    "./clientTypes": "./src/client/index.ts"
   },
   "dependencies": {
     "react": "^19.0.0",
