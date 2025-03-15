@@ -1,0 +1,20 @@
+{
+  "name": "@cma/types",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "exports": {
+    "./serverTypes": "./src/serverTypes.ts",
+    "./clientTypes": "./src/clientTypes.ts"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@cma/eslint-config": "*",
+    "@cma/typescript-config": "*",
+    "@types/react": "19.0.8",
+    "typescript": "5.7.3"
+  }
+}
