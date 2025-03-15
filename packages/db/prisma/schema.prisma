@@ -6,3 +6,35 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  sentMessages     Message[] @relation("Sender") // Messages sent by this user
+  receivedMessages Message[] @relation("Receiver") // Messages received by this user
+}
+
+model ChatRoom {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  messages  Message[]
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade, name: "Sender")
+
+  receiverId String?
+  receiver   User?   @relation(fields: [receiverId], references: [id], onDelete: Cascade, name: "Receiver")
+
+  roomId String?
+  room   ChatRoom? @relation(fields: [roomId], references: [id], onDelete: Cascade)
+}
