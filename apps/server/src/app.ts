@@ -3,7 +3,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import checkRoutes from "./middleware/checkRoutes";
+import checkRoutes from "./middleware/checkRoute.middleware";
 
 const app = express();
 const server = createServer(app); // Create HTTP server
