@@ -1,6 +1,6 @@
 import { server } from "./app";
 import * as dotenv from "dotenv";
-import startServer from "./controller/startServer";
+import startServer from "./controller/startServer.controller";
 
 dotenv.config();
 
