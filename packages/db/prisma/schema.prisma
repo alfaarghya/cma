@@ -9,29 +9,48 @@ datasource db {
 
 model User {
   id        String   @id @default(uuid())
+  name      String
   username  String   @unique
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
 
-  sentMessages     Message[] @relation("Sender") // Messages sent by this user
-  receivedMessages Message[] @relation("Receiver") // Messages received by this user
+  sentMessages     Message[] @relation("Sender")
+  receivedMessages Message[] @relation("Receiver")
+
+  chatRooms  UserChatRoom[] // Many-to-many relationship
+  adminRooms ChatRoom[]     @relation("RoomAdmin") // User is admin of these rooms
 }
 
 model ChatRoom {
-  id        String    @id @default(uuid())
-  name      String    @unique
-  roomLink  String    @unique // Stores the room link
-  createdAt DateTime  @default(now())
-  messages  Message[]
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  roomAdminId String
+  roomAdmin   User   @relation("RoomAdmin", fields: [roomAdminId], references: [id], onDelete: Cascade) // Admin of the room
+
+  messages Message[]
+  users    UserChatRoom[] // Many-to-many relationship
+}
+
+model UserChatRoom {
+  userId String
+  roomId String
+
+  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roomId]) // Composite primary key
 }
 
 model Message {
   id        String   @id @default(uuid())
   content   String
   createdAt DateTime @default(now())
-  senderId  String
-  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade, name: "Sender")
+
+  senderId String
+  sender   User   @relation(fields: [senderId], references: [id], onDelete: Cascade, name: "Sender")
 
   receiverId String?
   receiver   User?   @relation(fields: [receiverId], references: [id], onDelete: Cascade, name: "Receiver")
