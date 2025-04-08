@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { Status, StatusMessages } from "../statusCode/response";
 import prisma from "@cma/db/prisma";
 // import { decryptMessage } from "@chatApp/utils";
-import { CreateRoomSchema, GetMessagesSchema, GetRoomDetailsSchema, GetUserChatsSchema, JoinRoomSchema, UpdateRoomSchema } from "@cma/types/serverTypes";
+import { CreateRoomSchema, DeleteRoomSchema, GetMessagesSchema, GetRoomDetailsSchema, GetUserChatsSchema, JoinRoomSchema, UpdateRoomSchema } from "@cma/types/serverTypes";
 
 //get the list of rooms & inbox
 export const getUserChats = async (req: Request, res: Response) => {
@@ -411,6 +411,74 @@ export const updateRoom = async (req: Request, res: Response) => {
       status: Status.InternalServerError,
       statusMessage: StatusMessages[Status.InternalServerError],
       message: "Error updating room",
+    });
+    return;
+  }
+};
+
+// Delete a chat room (only by admin)
+export const deleteRoom = async (req: Request, res: Response) => {
+  const validation = DeleteRoomSchema.safeParse({
+    userId: req.body.userId,
+    roomId: req.params.roomId
+  });
+  if (!validation.success) {
+    res.status(Status.InvalidInput).json({
+      status: Status.InvalidInput,
+      statusMessage: StatusMessages[Status.InvalidInput],
+      message: validation.error.errors.map(err => err.message).join(", "),
+    });
+    return;
+  }
+
+  try {
+    const { roomId, userId } = validation.data;
+
+    const room = await prisma.chatRoom.findUnique({
+      where: { id: roomId },
+    });
+
+    if (!room) {
+      res.status(Status.NotFound).json({
+        status: Status.NotFound,
+        statusMessage: StatusMessages[Status.NotFound],
+        message: "Room not found",
+      });
+      return;
+    }
+
+    if (room.roomAdminId !== userId) {
+      res.status(Status.Forbidden).json({
+        status: Status.Forbidden,
+        statusMessage: StatusMessages[Status.Forbidden],
+        message: "Only the room admin can delete this room",
+      });
+      return;
+    }
+
+    //delete room
+    await prisma.chatRoom.delete({
+      where: { id: roomId },
+    });
+
+    //delete all chats
+    await prisma.message.deleteMany({
+      where: { roomId: roomId }
+    })
+
+    res.status(Status.Success).json({
+      status: Status.Success,
+      statusMessage: StatusMessages[Status.Success],
+      message: "Room deleted successfully",
+    });
+    return;
+
+  } catch (error) {
+    console.error("Error deleting room:", error);
+    res.status(Status.InternalServerError).json({
+      status: Status.InternalServerError,
+      statusMessage: StatusMessages[Status.InternalServerError],
+      message: "Error deleting room",
     });
     return;
   }
