@@ -1,6 +1,6 @@
 import { Router } from "express";
 import authenticate from "../middleware/authenticate.middleware";
-import { createRoom, getMessages, getRoomDetails, getUserChats, joinRoom } from "../controller/chat.controller";
+import { createRoom, getMessages, getRoomDetails, getUserChats, joinRoom, updateRoom } from "../controller/chat.controller";
 
 const router = Router();
 
@@ -18,5 +18,8 @@ router.get("/room/:roomId", authenticate, getRoomDetails);
 
 //join a room
 router.put("/room/join-room", authenticate, joinRoom);
+
+//update room -> rename or kick user
+router.put("/room/:roomId", authenticate, updateRoom);
 
 export default router;
