@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { Status, StatusMessages } from "../statusCode/response";
 import prisma from "@cma/db/prisma";
 // import { decryptMessage } from "@chatApp/utils";
-import { CreateRoomSchema, GetMessagesSchema, GetUserChatsSchema, JoinRoomSchema } from "@cma/types/serverTypes";
+import { CreateRoomSchema, GetMessagesSchema, GetRoomDetailsSchema, GetUserChatsSchema, JoinRoomSchema } from "@cma/types/serverTypes";
 
 //get the list of rooms & inbox
 export const getUserChats = async (req: Request, res: Response) => {
@@ -195,6 +195,76 @@ export const createRoom = async (req: Request, res: Response) => {
     return;
   }
 };
+
+// get the room details, roomName, created date, users{userIds, usernames}
+export const getRoomDetails = async (req: Request, res: Response) => {
+  //validate the requested data
+  const validation = GetRoomDetailsSchema.safeParse({ roomId: req.params.roomId });
+  if (!validation.success) {
+    res.status(Status.InvalidInput).json({
+      status: Status.InvalidInput,
+      statusMessage: StatusMessages[Status.InvalidInput],
+      message: validation.error.errors.map(err => err.message).join(", "),
+    });
+    return;
+  }
+
+  try {
+    //get valid data
+    const { roomId } = validation.data;
+
+    //find the room in db
+    const room = await prisma.chatRoom.findUnique({
+      where: { id: roomId },
+      include: {
+        users: {
+          include: {
+            user: {
+              select: { id: true, username: true },
+            },
+          },
+        },
+      },
+    });
+
+    //room was not in db
+    if (!room) {
+      res.status(Status.NotFound).json({
+        status: Status.NotFound,
+        statusMessage: StatusMessages[Status.NotFound],
+        message: "No room found",
+      })
+      return;
+    }
+
+    //mapping userId & username 
+    const users = room.users.map((userChatRoom) => ({
+      userId: userChatRoom.user.id,
+      username: userChatRoom.user.username,
+    }));
+
+    //successfully send the data
+    res.status(Status.Success).json({
+      status: Status.Success,
+      statusMessage: StatusMessages[Status.Success],
+      message: "Room details found successfully",
+      room: {
+        roomName: room.name,
+        createdAt: room.createdAt,
+        users
+      }
+    })
+    return;
+  } catch (error) {
+    console.error("Error getting the room details:", error);
+    res.status(Status.InternalServerError).json({
+      status: Status.InternalServerError,
+      statusMessage: StatusMessages[Status.InternalServerError],
+      message: "Error getting the room details",
+    });
+    return;
+  }
+}
 
 // Join a chat room
 export const joinRoom = async (req: Request, res: Response) => {
