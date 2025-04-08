@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { Status, StatusMessages } from "../statusCode/response";
 import prisma from "@cma/db/prisma";
 // import { decryptMessage } from "@chatApp/utils";
-import { GetUserChatsSchema } from "@cma/types/serverTypes";
+import { GetMessagesSchema, GetUserChatsSchema, } from "@cma/types/serverTypes";
 
 //get the list of rooms & inbox
 export const getUserChats = async (req: Request, res: Response) => {
@@ -67,4 +67,76 @@ export const getUserChats = async (req: Request, res: Response) => {
   }
 };
 
+// Get messages
+export const getMessages = async (req: Request, res: Response) => {
+  const validation = GetMessagesSchema.safeParse({
+    userId: req.body.userId,
+    inboxId: req.params.roomOrInboxId,
+    roomId: req.params.roomOrInboxId
+  });
+  if (!validation.success) {
+    res.status(Status.InvalidInput).json({
+      status: Status.InvalidInput,
+      statusMessage: StatusMessages[Status.InvalidInput],
+      message: validation.error.errors.map(err => err.message).join(", "),
+    });
+    return;
+  }
 
+  try {
+    const { userId, inboxId, roomId } = validation.data;
+    let content;
+
+    if (roomId) {
+      // Ensure the user is part of the room
+      const isUserInRoom = await prisma.userChatRoom.findUnique({
+        where: {
+          userId_roomId: { userId, roomId },
+        },
+      });
+
+      if (!isUserInRoom) {
+        res.status(Status.Forbidden).json({
+          status: Status.Forbidden,
+          statusMessage: StatusMessages[Status.Forbidden],
+          message: "You are not a member of this chat room.",
+        });
+        return;
+      }
+
+      //Fetch messages from the room
+      content = await prisma.message.findMany({
+        where: { roomId },
+        orderBy: { createdAt: "asc" },
+      });
+
+    } else {
+      // Fetch direct messages only if the user is a sender or receiver
+      content = await prisma.message.findMany({
+        where: {
+          senderId: userId, receiverId: inboxId
+        },
+        orderBy: { createdAt: "asc" },
+      });
+    }
+
+    content = content.map(msg => ({ ...msg }));
+    // content = content.map(msg => ({ ...msg, content: decryptMessage(msg.content) }));
+
+    res.status(Status.Success).json({
+      status: Status.Success,
+      statusMessage: StatusMessages[Status.Success],
+      messages: "messages retrieve successfully",
+      content
+    });
+    return;
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    res.status(Status.InternalServerError).json({
+      status: Status.InternalServerError,
+      statusMessage: StatusMessages[Status.InternalServerError],
+      message: "Error fetching messages",
+    });
+    return;
+  }
+};
