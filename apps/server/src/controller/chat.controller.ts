@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { Status, StatusMessages } from "../statusCode/response";
 import prisma from "@cma/db/prisma";
 // import { decryptMessage } from "@chatApp/utils";
-import { GetMessagesSchema, GetUserChatsSchema, } from "@cma/types/serverTypes";
+import { CreateRoomSchema, GetMessagesSchema, GetUserChatsSchema, } from "@cma/types/serverTypes";
 
 //get the list of rooms & inbox
 export const getUserChats = async (req: Request, res: Response) => {
@@ -136,6 +136,61 @@ export const getMessages = async (req: Request, res: Response) => {
       status: Status.InternalServerError,
       statusMessage: StatusMessages[Status.InternalServerError],
       message: "Error fetching messages",
+    });
+    return;
+  }
+};
+
+// Create a chat room and assign the creator as the admin
+export const createRoom = async (req: Request, res: Response) => {
+  const validation = CreateRoomSchema.safeParse(req.body);
+  if (!validation.success) {
+    res.status(Status.InvalidInput).json({
+      status: Status.InvalidInput,
+      statusMessage: StatusMessages[Status.InvalidInput],
+      message: validation.error.errors.map(err => err.message).join(", "),
+    });
+    return;
+  }
+
+  try {
+    const { roomName, userId } = validation.data;
+
+    const existingRoom = await prisma.chatRoom.findFirst({
+      where: { name: roomName }
+    });
+
+    if (existingRoom) {
+      res.status(Status.Conflict).json({
+        status: Status.Conflict,
+        statusMessage: StatusMessages[Status.Conflict],
+        message: "Room already exists, choose a unique name",
+      });
+      return;
+    }
+
+    const room = await prisma.chatRoom.create({
+      data: {
+        name: roomName,
+        roomAdminId: userId, // Set the creator as admin
+        users: { create: { userId } }, // Add creator to room
+      },
+    });
+
+    res.status(Status.Success).json({
+      status: Status.Success,
+      statusMessage: StatusMessages[Status.Success],
+      message: "Chat room created successfully",
+      room,
+    });
+    return;
+
+  } catch (error) {
+    console.error("Error creating room:", error);
+    res.status(Status.InternalServerError).json({
+      status: Status.InternalServerError,
+      statusMessage: StatusMessages[Status.InternalServerError],
+      message: "Error creating room",
     });
     return;
   }

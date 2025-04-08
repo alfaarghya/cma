@@ -1,6 +1,6 @@
 import { Router } from "express";
 import authenticate from "../middleware/authenticate.middleware";
-import { getMessages, getUserChats } from "../controller/chat.controller";
+import { createRoom, getMessages, getUserChats } from "../controller/chat.controller";
 
 const router = Router();
 
@@ -9,5 +9,8 @@ router.get("/lists", authenticate, getUserChats);
 
 //get the message history of a room or inbox
 router.get("/:roomOrInboxId", authenticate, getMessages);
+
+//create a room
+router.post("/room", authenticate, createRoom);
 
 export default router;
