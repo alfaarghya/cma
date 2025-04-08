@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { Status, StatusMessages } from "../statusCode/response";
 import prisma from "@cma/db/prisma";
 // import { decryptMessage } from "@chatApp/utils";
-import { CreateRoomSchema, GetMessagesSchema, GetUserChatsSchema, } from "@cma/types/serverTypes";
+import { CreateRoomSchema, GetMessagesSchema, GetUserChatsSchema, JoinRoomSchema } from "@cma/types/serverTypes";
 
 //get the list of rooms & inbox
 export const getUserChats = async (req: Request, res: Response) => {
@@ -191,6 +191,76 @@ export const createRoom = async (req: Request, res: Response) => {
       status: Status.InternalServerError,
       statusMessage: StatusMessages[Status.InternalServerError],
       message: "Error creating room",
+    });
+    return;
+  }
+};
+
+// Join a chat room
+export const joinRoom = async (req: Request, res: Response) => {
+  const validation = JoinRoomSchema.safeParse(req.body);
+  if (!validation.success) {
+    res.status(Status.InvalidInput).json({
+      status: Status.InvalidInput,
+      statusMessage: StatusMessages[Status.InvalidInput],
+      message: validation.error.errors.map(err => err.message).join(", "),
+    });
+    return;
+  }
+
+  try {
+    const { roomName, userId } = validation.data;
+
+    const room = await prisma.chatRoom.findUnique({
+      where: { name: roomName },
+    });
+
+    if (!room) {
+      res.status(Status.NotFound).json({
+        status: Status.NotFound,
+        statusMessage: StatusMessages[Status.NotFound],
+        message: "Chat room not found",
+      });
+      return;
+    }
+
+    const existingMembership = await prisma.userChatRoom.findUnique({
+      where: {
+        userId_roomId: { userId, roomId: room.id },
+      },
+    });
+
+    if (existingMembership) {
+      res.status(Status.Success).json({
+        status: Status.Success,
+        statusMessage: StatusMessages[Status.Success],
+        message: `User is already in room ${room.name}`,
+        room,
+      });
+      return;
+    }
+
+    await prisma.userChatRoom.create({
+      data: {
+        userId,
+        roomId: room.id,
+      },
+    });
+
+    res.status(Status.Success).json({
+      status: Status.Success,
+      statusMessage: StatusMessages[Status.Success],
+      message: `User joined room ${room.name} successfully`,
+      room,
+    });
+    return;
+
+  } catch (error) {
+    console.error("Error joining room:", error);
+    res.status(Status.InternalServerError).json({
+      status: Status.InternalServerError,
+      statusMessage: StatusMessages[Status.InternalServerError],
+      message: "Error joining room",
     });
     return;
   }
