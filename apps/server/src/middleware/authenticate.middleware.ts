@@ -25,7 +25,7 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
     if (decoded && decoded.id && decoded.username && decoded.email) {
       // Attach user details to the request
       req.body = {
-        id: decoded.id,
+        userId: decoded.id,
         username: decoded.username,
         email: decoded.email,
         ...req.body, // Keep existing request body
