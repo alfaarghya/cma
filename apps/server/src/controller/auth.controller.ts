@@ -8,22 +8,22 @@ import { COOKIE_OPTIONS } from "../utils/cookieOptions";
 
 // User Signup Controller
 export const signup = async (req: Request, res: Response) => {
-  const validation = UserSignUpSchema.safeParse(req.body);
-  
-  // check: if the request body is valid
-  if (!validation.success) {
-    res.status(Status.InvalidInput).json({
-      status: Status.InvalidInput,
-      statusMessage: StatusMessages[Status.InvalidInput],
-      message: "Invalid input, please check your input and try again",
-      errors: validation.error.errors,
-    });
-    return;
-  }
-
-  const { username, email, password } = validation.data;
-
   try {
+    const validation = UserSignUpSchema.safeParse(req.body);
+
+    // check: if the request body is valid
+    if (!validation.success) {
+      res.status(Status.InvalidInput).json({
+        status: Status.InvalidInput,
+        statusMessage: StatusMessages[Status.InvalidInput],
+        message: "Invalid input, please check your input and try again",
+        errors: validation.error.errors,
+      });
+      return;
+    }
+
+    const { name, username, email, password } = validation.data;
+
     // Check if username or email already exists
     const existingUser = await prisma.user.findFirst({
       where: { OR: [{ username }, { email }] },
@@ -43,7 +43,7 @@ export const signup = async (req: Request, res: Response) => {
 
     // Create user
     const newUser = await prisma.user.create({
-      data: { username, email, password: hashedPassword },
+      data: { name, username, email, password: hashedPassword },
     });
 
     // Generate JWT token
@@ -62,6 +62,7 @@ export const signup = async (req: Request, res: Response) => {
       statusMessage: StatusMessages[Status.Success],
       message: "Account created successfully",
       username: newUser.username,
+      userId: newUser.id
     });
     return;
   } catch (error) {
@@ -132,6 +133,7 @@ export const signin = async (req: Request, res: Response) => {
       statusMessage: StatusMessages[Status.Success],
       message: "Signed in successfully",
       username: user.username,
+      userId: user.id
     });
     return;
   } catch (error) {
