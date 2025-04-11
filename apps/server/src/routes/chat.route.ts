@@ -8,7 +8,7 @@ const router = Router();
 router.get("/lists", authenticate, getUserChats);
 
 //get the message history of a room or inbox
-router.get("/:roomOrInboxId", authenticate, getMessages);
+router.get("/:chatId", authenticate, getMessages);
 
 //create a room
 router.post("/room", authenticate, createRoom);
