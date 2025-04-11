@@ -5,17 +5,19 @@ import { UserSearchSchema } from "@cma/types/serverTypes";
 
 //search a user by their name
 export const searchUser = async (req: Request, res: Response) => {
-  const validation = UserSearchSchema.safeParse(req.query);
-  if (!validation.success) {
-    res.status(Status.InvalidInput).json({
-      status: Status.InvalidInput,
-      statusMessage: StatusMessages[Status.InvalidInput],
-      message: validation.error.errors.map(err => err.message).join(", "),
-    });
-    return;
-  }
-
   try {
+    //validate request body
+    const validation = UserSearchSchema.safeParse(req.query);
+    if (!validation.success) {
+      res.status(Status.InvalidInput).json({
+        status: Status.InvalidInput,
+        statusMessage: StatusMessages[Status.InvalidInput],
+        message: validation.error.errors.map(err => err.message).join(", "),
+      });
+      return;
+    }
+
+    //get valid data
     const { username } = validation.data;
 
     // Find users where username partially matches the search input
@@ -29,6 +31,7 @@ export const searchUser = async (req: Request, res: Response) => {
       select: { id: true, username: true },
     });
 
+    //check for matched username
     if (!matchUsers) {
       res.status(Status.NoContent).json({
         status: Status.NoContent,

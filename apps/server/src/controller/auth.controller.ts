@@ -16,8 +16,7 @@ export const signup = async (req: Request, res: Response) => {
       res.status(Status.InvalidInput).json({
         status: Status.InvalidInput,
         statusMessage: StatusMessages[Status.InvalidInput],
-        message: "Invalid input, please check your input and try again",
-        errors: validation.error.errors,
+        message: validation.error.errors.map(err => err.message).join(", "),
       });
       return;
     }
@@ -84,8 +83,7 @@ export const signin = async (req: Request, res: Response) => {
     res.status(Status.InvalidInput).json({
       status: Status.InvalidInput,
       statusMessage: StatusMessages[Status.InvalidInput],
-      message: "Invalid input, please check your input and try again",
-      errors: validation.error.errors,
+      message: validation.error.errors.map(err => err.message).join(", "),
     });
     return;
   }
