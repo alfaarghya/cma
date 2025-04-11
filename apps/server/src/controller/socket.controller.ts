@@ -14,10 +14,10 @@ const socketHandler = (wss: WebSocketServer) => {
 
     ws.on("message", async (data) => {
       try {
-        const { type, content, roomId, recipientId, senderId } = JSON.parse(data.toString());
+        const { type, content, roomId, recipientId, senderId, sender } = JSON.parse(data.toString());
 
-        if (!content || !senderId) {
-          console.log("❌ Missing content or senderId.");
+        if (!content || !senderId || !sender) {
+          console.log("❌ Missing content or senderId or sender.");
           return;
         }
 
@@ -64,6 +64,7 @@ const socketHandler = (wss: WebSocketServer) => {
                   type: "roomMessage",
                   roomId,
                   senderId,
+                  sender,
                   content,
                   createdAt: message.createdAt,
                 })
@@ -94,9 +95,10 @@ const socketHandler = (wss: WebSocketServer) => {
             recipientSocket.send(
               JSON.stringify({
                 type: "directMessage",
-                senderId,
-                recipientId,
                 content,
+                senderId,
+                sender,
+                recipientId,
                 createdAt: message.createdAt,
               })
             );
