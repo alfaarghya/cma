@@ -41,13 +41,21 @@ export const getUserChats = async (req: Request, res: Response) => {
         sender: { select: { id: true, username: true } },
         receiver: { select: { id: true, username: true } },
       },
-      distinct: ["senderId", "receiverId"],
     });
 
-    // Format inbox users to exclude the logged-in user
-    const inbox = inboxUsers
-      .flatMap(({ sender, receiver }) => [sender, receiver])
-      .filter(user => user && user.id !== userId);
+    // Deduplicate and exclude self
+    const userMap = new Map<string, { id: string; username: string }>();
+
+    inboxUsers.forEach(({ sender, receiver }) => {
+      if (sender && sender.id !== userId) {
+        userMap.set(sender.id, sender);
+      }
+      if (receiver && receiver.id !== userId) {
+        userMap.set(receiver.id, receiver);
+      }
+    });
+
+    const inbox = Array.from(userMap.values());
 
     res.status(Status.Success).json({
       status: Status.Success,
