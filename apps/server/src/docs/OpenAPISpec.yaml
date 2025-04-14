@@ -1,0 +1,384 @@
+openapi: 3.0.3
+info:
+  title: cma server API
+  description: API for user authentication, searching users, and chatting.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+paths:
+  api/auth/signup:
+    post:
+      summary: User Signup
+      description: Register a new user.
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Arghya Das
+                username:
+                  type: string
+                  example: alfaarghya
+                email:
+                  type: string
+                  format: email
+                  example: alfaarghya@example.com
+                password:
+                  type: string
+                  format: password
+                  example: MySecurePass123
+      responses:
+        "200":
+          description: Account created successfully
+        "409":
+          description: Username or email already exists
+        "411":
+          description: Invalid input
+        "500":
+          description: Internal server error
+
+  api/auth/signin:
+    post:
+      summary: User Signin
+      description: Logs in a user and returns an authentication token.
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: johndoe
+                password:
+                  type: string
+                  format: password
+                  example: MySecurePass123
+      responses:
+        "200":
+          description: Signed in successfully
+        "404":
+          description: User not found
+        "403":
+          description: Incorrect password
+        "411":
+          description: Invalid input
+        "500":
+          description: Internal server error
+
+  api/auth/logout:
+    post:
+      summary: User Logout
+      description: Logs out the user by clearing the authentication cookie.
+      tags: [Auth]
+      responses:
+        "200":
+          description: Logged out successfully
+        "500":
+          description: Internal server error
+
+  api/search/user:
+    get:
+      summary: Search Users
+      description: Search for users by username (case-insensitive).
+      tags: [Search]
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Partial or full username to search for.
+      responses:
+        "200":
+          description: Found users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: "123"
+                        username:
+                          type: string
+                          example: alfaarghya
+        "204":
+          description: No users found
+        "411":
+          description: Invalid input
+        "500":
+          description: Internal server error
+
+  api/chat/lists:
+    get:
+      summary: Get the list of user chats (rooms and inboxes)
+      description: Retrieves all chat rooms and inbox conversations for the authenticated user.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully retrieved chats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                  chatRooms:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        createdAt:
+                          type: string
+                          format: date-time
+                  inbox:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        username:
+                          type: string
+        "500":
+          description: Server error
+
+  api/chat/{chatId}:
+    get:
+      summary: Get message history of a room or inbox
+      description: Retrieves all messages for a given chat room or inbox conversation.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully retrieved messages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                  messages:
+                    type: string
+                  content:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        senderId:
+                          type: string
+                        sender:
+                          type: string
+                        receiverId:
+                          type: string
+                        content:
+                          type: string
+                        createdAt:
+                          type: string
+                          format: date-time
+        "403":
+          description: User is not a member of the room
+        "411":
+          description: Invalid input
+        "404":
+          description: type is not provided
+        "500":
+          description: Server error
+
+  api/chat/room:
+    post:
+      summary: Create a chat room
+      description: Creates a new chat room and assigns the creator as the admin.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roomName:
+                  type: string
+      responses:
+        "200":
+          description: Room created successfully
+        "409":
+          description: Room already exists
+        "411":
+          description: Invalid input
+        "500":
+          description: Server error
+
+  api/chat/room/{roomId}:
+    get:
+      summary: Get room details
+      description: Retrieves information about a specific chat room, including members.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Room details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                  messages:
+                    type: string
+                  room:
+                    type: object
+                    properties:
+                      roomName:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+                      users:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            userId:
+                              type: string
+                            username:
+                              type: string
+        "404":
+          description: Room not found
+        "411":
+          description: Invalid input
+        "500":
+          description: Server error
+
+    put:
+      summary: Update a chat room (rename or remove user)
+      description: Allows renaming a room or removing a user (admin only).
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newRoomName:
+                  type: string
+                removeUserId:
+                  type: string
+      responses:
+        "200":
+          description: Room updated successfully
+        "403":
+          description: Only admin can update the room
+        "404":
+          description: User to remove not found
+        "411":
+          description: Invalid input
+        "500":
+          description: Server error
+
+    delete:
+      summary: Delete a chat room
+      description: Deletes a chat room (only the admin can delete it).
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Room deleted successfully
+        "403":
+          description: Only the admin can delete the room
+        "404":
+          description: Room not found
+        "411":
+          description: Invalid input
+        "500":
+          description: Server error
+
+  api/chat/room/join-room:
+    put:
+      summary: Join a chat room
+      description: Allows a user to join a chat room.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roomName:
+                  type: string
+      responses:
+        "200":
+          description: User joined the room successfully
+        "404":
+          description: Room not found
+        "411":
+          description: Invalid input
+        "500":
+          description: Server error
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
