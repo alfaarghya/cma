@@ -119,38 +119,35 @@ async function main() {
       },
     ],
   });
-  // // Create Messages (Encrypted)
-  // await prisma.message.createMany({
-  //   data: [
-  //     {
-  //       content: encryptMessage("Hello everyone!"), // Encrypt before storing
-  //       senderId: alice.id,
-  //       roomId: generalRoom.id,
-  //     },
-  //     {
-  //       content: encryptMessage("Hey Alice! How are you?"),
-  //       senderId: bob.id,
-  //       roomId: generalRoom.id,
-  //     },
-  //     {
-  //       content: encryptMessage("This chat room is great!"),
-  //       senderId: charlie.id,
-  //       roomId: generalRoom.id,
-  //     },
-  //     {
-  //       content: encryptMessage("Let's talk about Node.js"),
-  //       senderId: bob.id,
-  //       roomId: techTalkRoom.id,
-  //     },
-  //     {
-  //       content: encryptMessage("I love TypeScript!"),
-  //       senderId: alice.id,
-  //       roomId: techTalkRoom.id,
-  //     },
-  //   ],
-  // });
+  console.log("✅ Messages created in rooms!");
 
-  console.log("✅ Messages created!");
+  //create inbox message
+  await prisma.message.createMany({
+    data: [
+      {
+        content: "Hey Bob, how's it going?",
+        senderId: alice.id,
+        receiverId: bob.id,
+      },
+      {
+        content: "Hey Alice! Doing well. How about you?",
+        senderId: bob.id,
+        receiverId: alice.id,
+      },
+      {
+        content: "Pretty good! Want to catch up later today?",
+        senderId: alice.id,
+        receiverId: bob.id,
+      },
+      {
+        content: "Sure! Ping me when you're free.",
+        senderId: bob.id,
+        receiverId: alice.id,
+      },
+    ],
+  });
+  console.log("✅ Direct messages between Alice and Bob created!");
+
 
   console.log("🎉 Database seeding completed!");
 }
