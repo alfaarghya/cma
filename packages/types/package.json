@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit"
+  },
   "exports": {
     "./serverTypes": "./src/server/index.ts",
     "./clientTypes": "./src/client/index.ts"
