@@ -16,12 +16,12 @@ const wss = new WebSocket.Server({ server }); // Create WebSocket Server
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser()); //parse the cookies
-app.use(checkRoutes); // check all routes 
+app.use(checkRoutes); // check all routes
 
 //api routes
 app.use("/api/auth", auth);
 app.use("/api/chat", chat);
-app.use("/api/search", search)
+app.use("/api/search", search);
 
 // Default Route
 app.get("/", (req, res) => {

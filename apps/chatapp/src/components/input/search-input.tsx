@@ -10,9 +10,7 @@ const SearchInput = () => {
   const [results, setResults] = useState<User[]>([]);
   const [isFocused, setIsFocused] = useState(false);
   const router = useRouter();
-  const currentUsername = typeof window !== "undefined"
-    ? localStorage.getItem("username")
-    : null;
+  const currentUsername = typeof window !== "undefined" ? localStorage.getItem("username") : null;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -23,11 +21,11 @@ const SearchInput = () => {
       }
 
       try {
-        const res = await api.get(`/search/user?username=${query}`, { signal: controller.signal, });
+        const res = await api.get(`/search/user?username=${query}`, { signal: controller.signal });
 
         //filter out
         let users: User[] = res.data.users;
-        users = users.filter(u => u.username !== currentUsername);
+        users = users.filter((u) => u.username !== currentUsername);
 
         setResults(users || []);
       } catch (err) {
@@ -69,7 +67,8 @@ const SearchInput = () => {
               >
                 {user.username}
               </div>
-            ))) : (
+            ))
+          ) : (
             <div className="px-4 py-2 text-sm text-gray-600">No one found</div>
           )}
         </div>

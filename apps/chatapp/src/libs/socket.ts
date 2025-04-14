@@ -16,7 +16,6 @@ export const useWebSocket = ({ chatId, type, userId, sender, onMessage }: WebSoc
     const socket = new WebSocket(SOCKET_URL);
     socketRef.current = socket;
 
-
     socket.onopen = () => {
       // console.log(userId);
       console.log("✅ WebSocket Connected");
@@ -42,7 +41,6 @@ export const useWebSocket = ({ chatId, type, userId, sender, onMessage }: WebSoc
   }, []);
 
   const sendMessage = (content: string) => {
-
     if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
       console.log("🚫 WebSocket not open yet");
       console.log(socketRef.current);
@@ -52,19 +50,19 @@ export const useWebSocket = ({ chatId, type, userId, sender, onMessage }: WebSoc
     const payload =
       type === "room"
         ? {
-          type: "roomMessage",
-          roomId: chatId,
-          senderId: userId,
-          sender: sender,
-          content,
-        }
+            type: "roomMessage",
+            roomId: chatId,
+            senderId: userId,
+            sender: sender,
+            content,
+          }
         : {
-          type: "directMessage",
-          recipientId: chatId,
-          senderId: userId,
-          sender: sender,
-          content,
-        };
+            type: "directMessage",
+            recipientId: chatId,
+            senderId: userId,
+            sender: sender,
+            content,
+          };
 
     socketRef.current.send(JSON.stringify(payload));
   };

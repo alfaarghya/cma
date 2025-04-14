@@ -1,6 +1,14 @@
 import { Router } from "express";
 import authenticate from "../middleware/authenticate.middleware";
-import { createRoom, deleteRoom, getMessages, getRoomDetails, getUserChats, joinRoom, updateRoom } from "../controller/chat.controller";
+import {
+  createRoom,
+  deleteRoom,
+  getMessages,
+  getRoomDetails,
+  getUserChats,
+  joinRoom,
+  updateRoom,
+} from "../controller/chat.controller";
 
 const router = Router();
 

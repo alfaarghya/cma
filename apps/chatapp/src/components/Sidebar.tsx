@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import 'remixicon/fonts/remixicon.css';
+import "remixicon/fonts/remixicon.css";
 import { useRouter } from "next/navigation";
 import api from "../libs/axios";
 import { ChatRoom, InboxUser } from "@cma/types/clientTypes";
@@ -42,7 +42,6 @@ const Sidebar = () => {
       window.removeEventListener("room-created", handleRoomUpdate);
       window.removeEventListener("room-joined", handleRoomUpdate);
     };
-
   }, []);
 
   return (
@@ -64,11 +63,7 @@ const Sidebar = () => {
           >
             <i className="ri-login-box-line text-xl" />
           </button>
-          <button
-            onClick={fetchChats}
-            className="p-1 rounded hover:bg-gray-700 transition"
-            title="Refresh chat list"
-          >
+          <button onClick={fetchChats} className="p-1 rounded hover:bg-gray-700 transition" title="Refresh chat list">
             <i className={`ri-restart-line text-lg ${loading ? "animate-spin" : ""}`} />
           </button>
         </div>
@@ -76,14 +71,13 @@ const Sidebar = () => {
 
       {chatRooms.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold mb-2">Rooms <i className="ri-team-fill"></i></h3>
+          <h3 className="text-lg font-semibold mb-2">
+            Rooms <i className="ri-team-fill"></i>
+          </h3>
           <ul className="space-y-2">
             {chatRooms.map((room) => (
               <li key={room.id}>
-                <Link
-                  href={`/chat/room/${room.id}`}
-                  className="block px-3 py-2 rounded hover:bg-gray-700 transition"
-                >
+                <Link href={`/chat/room/${room.id}`} className="block px-3 py-2 rounded hover:bg-gray-700 transition">
                   {room.name}
                 </Link>
               </li>
@@ -94,14 +88,13 @@ const Sidebar = () => {
 
       {inbox.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold mb-2">Inboxes <i className="ri-inbox-2-fill"></i></h3>
+          <h3 className="text-lg font-semibold mb-2">
+            Inboxes <i className="ri-inbox-2-fill"></i>
+          </h3>
           <ul className="space-y-2">
             {inbox.map((dm) => (
               <li key={dm.id}>
-                <Link
-                  href={`/chat/inbox/${dm.id}`}
-                  className="block px-3 py-2 rounded hover:bg-gray-700 transition"
-                >
+                <Link href={`/chat/inbox/${dm.id}`} className="block px-3 py-2 rounded hover:bg-gray-700 transition">
                   {dm.username}
                 </Link>
               </li>

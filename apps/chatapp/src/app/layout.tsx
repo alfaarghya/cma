@@ -27,9 +27,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Navbar />
-        <main className="h-screen flex flex-col justify-between pt-20">
-          {children}
-        </main>
+        <main className="h-screen flex flex-col justify-between pt-20">{children}</main>
         <Toaster richColors position="top-center" />
       </body>
     </html>

@@ -57,7 +57,7 @@ const socketHandler = (wss: WebSocketServer) => {
           });
 
           // Send message only to users in the same room
-          rooms.get(roomId)?.forEach(client => {
+          rooms.get(roomId)?.forEach((client) => {
             if (client.readyState === WebSocket.OPEN && client.userId !== senderId) {
               client.send(
                 JSON.stringify({

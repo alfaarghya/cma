@@ -12,7 +12,7 @@ export const searchUser = async (req: Request, res: Response) => {
       res.status(Status.InvalidInput).json({
         status: Status.InvalidInput,
         statusMessage: StatusMessages[Status.InvalidInput],
-        message: validation.error.errors.map(err => err.message).join(", "),
+        message: validation.error.errors.map((err) => err.message).join(", "),
       });
       return;
     }
@@ -37,7 +37,7 @@ export const searchUser = async (req: Request, res: Response) => {
         status: Status.NoContent,
         statusMessage: StatusMessages[Status.NoContent],
         message: "no user found with username",
-        users: matchUsers
+        users: matchUsers,
       });
       return;
     }

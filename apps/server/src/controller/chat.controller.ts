@@ -2,7 +2,15 @@ import { Request, Response } from "express";
 import { Status, StatusMessages } from "../statusCode/response";
 import prisma from "@cma/db/prisma";
 // import { decryptMessage } from "@chatApp/utils";
-import { CreateRoomSchema, DeleteRoomSchema, GetMessagesSchema, GetRoomDetailsSchema, GetUserChatsSchema, JoinRoomSchema, UpdateRoomSchema } from "@cma/types/serverTypes";
+import {
+  CreateRoomSchema,
+  DeleteRoomSchema,
+  GetMessagesSchema,
+  GetRoomDetailsSchema,
+  GetUserChatsSchema,
+  JoinRoomSchema,
+  UpdateRoomSchema,
+} from "@cma/types/serverTypes";
 
 //get the list of rooms & inbox
 export const getUserChats = async (req: Request, res: Response) => {
@@ -13,7 +21,7 @@ export const getUserChats = async (req: Request, res: Response) => {
       res.status(Status.InvalidInput).json({
         status: Status.InvalidInput,
         statusMessage: StatusMessages[Status.InvalidInput],
-        message: validation.error.errors.map(err => err.message).join(", "),
+        message: validation.error.errors.map((err) => err.message).join(", "),
       });
       return;
     }
@@ -84,14 +92,14 @@ export const getMessages = async (req: Request, res: Response) => {
     const validation = GetMessagesSchema.safeParse({
       userId: req.body.userId,
       chatId: req.params.chatId,
-      type: req.query.type
+      type: req.query.type,
     });
 
     if (!validation.success) {
       res.status(Status.InvalidInput).json({
         status: Status.InvalidInput,
         statusMessage: StatusMessages[Status.InvalidInput],
-        message: validation.error.errors.map(err => err.message).join(", "),
+        message: validation.error.errors.map((err) => err.message).join(", "),
       });
       return;
     }
@@ -123,7 +131,7 @@ export const getMessages = async (req: Request, res: Response) => {
       content = await prisma.message.findMany({
         where: { roomId: chatId },
         orderBy: { createdAt: "asc" },
-        include: { sender: { select: { username: true } } }
+        include: { sender: { select: { username: true } } },
       });
 
       //get the inbox messages
@@ -133,11 +141,11 @@ export const getMessages = async (req: Request, res: Response) => {
         where: {
           OR: [
             { senderId: userId, receiverId: chatId },
-            { senderId: chatId, receiverId: userId }
-          ]
+            { senderId: chatId, receiverId: userId },
+          ],
         },
         orderBy: { createdAt: "asc" },
-        include: { sender: { select: { username: true } } }
+        include: { sender: { select: { username: true } } },
       });
 
       //no type is provided
@@ -151,7 +159,7 @@ export const getMessages = async (req: Request, res: Response) => {
     }
 
     // send sender name with content
-    content = content.map(msg => ({
+    content = content.map((msg) => ({
       ...msg,
       sender: msg.sender.username,
     }));
@@ -161,7 +169,7 @@ export const getMessages = async (req: Request, res: Response) => {
       status: Status.Success,
       statusMessage: StatusMessages[Status.Success],
       messages: "messages retrieve successfully",
-      content
+      content,
     });
     return;
   } catch (error) {
@@ -184,7 +192,7 @@ export const createRoom = async (req: Request, res: Response) => {
       res.status(Status.InvalidInput).json({
         status: Status.InvalidInput,
         statusMessage: StatusMessages[Status.InvalidInput],
-        message: validation.error.errors.map(err => err.message).join(", "),
+        message: validation.error.errors.map((err) => err.message).join(", "),
       });
       return;
     }
@@ -194,7 +202,7 @@ export const createRoom = async (req: Request, res: Response) => {
 
     // room already exists -> can't create new room
     const existingRoom = await prisma.chatRoom.findFirst({
-      where: { name: roomName }
+      where: { name: roomName },
     });
     if (existingRoom) {
       res.status(Status.Conflict).json({
@@ -221,7 +229,6 @@ export const createRoom = async (req: Request, res: Response) => {
       room,
     });
     return;
-
   } catch (error) {
     console.error("Error creating room:", error);
     res.status(Status.InternalServerError).json({
@@ -242,7 +249,7 @@ export const getRoomDetails = async (req: Request, res: Response) => {
       res.status(Status.InvalidInput).json({
         status: Status.InvalidInput,
         statusMessage: StatusMessages[Status.InvalidInput],
-        message: validation.error.errors.map(err => err.message).join(", "),
+        message: validation.error.errors.map((err) => err.message).join(", "),
       });
       return;
     }
@@ -270,11 +277,11 @@ export const getRoomDetails = async (req: Request, res: Response) => {
         status: Status.NotFound,
         statusMessage: StatusMessages[Status.NotFound],
         message: "No room found",
-      })
+      });
       return;
     }
 
-    //mapping userId & username 
+    //mapping userId & username
     const users = room.users.map((userChatRoom) => ({
       userId: userChatRoom.user.id,
       username: userChatRoom.user.username,
@@ -288,9 +295,9 @@ export const getRoomDetails = async (req: Request, res: Response) => {
       room: {
         roomName: room.name,
         createdAt: room.createdAt,
-        users
-      }
-    })
+        users,
+      },
+    });
     return;
   } catch (error) {
     console.error("Error getting the room details:", error);
@@ -301,7 +308,7 @@ export const getRoomDetails = async (req: Request, res: Response) => {
     });
     return;
   }
-}
+};
 
 // Join a chat room
 export const joinRoom = async (req: Request, res: Response) => {
@@ -312,7 +319,7 @@ export const joinRoom = async (req: Request, res: Response) => {
       res.status(Status.InvalidInput).json({
         status: Status.InvalidInput,
         statusMessage: StatusMessages[Status.InvalidInput],
-        message: validation.error.errors.map(err => err.message).join(", "),
+        message: validation.error.errors.map((err) => err.message).join(", "),
       });
       return;
     }
@@ -364,7 +371,6 @@ export const joinRoom = async (req: Request, res: Response) => {
       room,
     });
     return;
-
   } catch (error) {
     console.error("Error joining room:", error);
     res.status(Status.InternalServerError).json({
@@ -382,13 +388,13 @@ export const updateRoom = async (req: Request, res: Response) => {
     //validate request data
     const validation = UpdateRoomSchema.safeParse({
       roomId: req.params.roomId,
-      ...req.body
+      ...req.body,
     });
     if (!validation.success) {
       res.status(Status.InvalidInput).json({
         status: Status.InvalidInput,
         statusMessage: StatusMessages[Status.InvalidInput],
-        message: validation.error.errors.map(err => err.message).join(", "),
+        message: validation.error.errors.map((err) => err.message).join(", "),
       });
       return;
     }
@@ -422,7 +428,7 @@ export const updateRoom = async (req: Request, res: Response) => {
         status: Status.Success,
         statusMessage: StatusMessages[Status.Success],
         message: "Room updated successfully",
-        room: updateRoom
+        room: updateRoom,
       });
       return;
     }
@@ -430,9 +436,11 @@ export const updateRoom = async (req: Request, res: Response) => {
     //kick a member
     if (removeUserId) {
       //user is not a member of the room
-      if (await prisma.userChatRoom.findFirst({
-        where: { userId: removeUserId }
-      })) {
+      if (
+        await prisma.userChatRoom.findFirst({
+          where: { userId: removeUserId },
+        })
+      ) {
         res.status(Status.NotFound).json({
           status: Status.NotFound,
           statusMessage: StatusMessages[Status.NotFound],
@@ -452,7 +460,6 @@ export const updateRoom = async (req: Request, res: Response) => {
       });
       return;
     }
-
   } catch (error) {
     console.error("Error updating room:", error);
     res.status(Status.InternalServerError).json({
@@ -470,14 +477,14 @@ export const deleteRoom = async (req: Request, res: Response) => {
     //validate request body
     const validation = DeleteRoomSchema.safeParse({
       userId: req.body.userId,
-      roomId: req.params.roomId
+      roomId: req.params.roomId,
     });
 
     if (!validation.success) {
       res.status(Status.InvalidInput).json({
         status: Status.InvalidInput,
         statusMessage: StatusMessages[Status.InvalidInput],
-        message: validation.error.errors.map(err => err.message).join(", "),
+        message: validation.error.errors.map((err) => err.message).join(", "),
       });
       return;
     }
@@ -516,8 +523,8 @@ export const deleteRoom = async (req: Request, res: Response) => {
 
     //delete all chats
     await prisma.message.deleteMany({
-      where: { roomId: roomId }
-    })
+      where: { roomId: roomId },
+    });
 
     res.status(Status.Success).json({
       status: Status.Success,
@@ -525,7 +532,6 @@ export const deleteRoom = async (req: Request, res: Response) => {
       message: "Room deleted successfully",
     });
     return;
-
   } catch (error) {
     console.error("Error deleting room:", error);
     res.status(Status.InternalServerError).json({

@@ -16,7 +16,7 @@ export const signup = async (req: Request, res: Response) => {
       res.status(Status.InvalidInput).json({
         status: Status.InvalidInput,
         statusMessage: StatusMessages[Status.InvalidInput],
-        message: validation.error.errors.map(err => err.message).join(", "),
+        message: validation.error.errors.map((err) => err.message).join(", "),
       });
       return;
     }
@@ -61,7 +61,7 @@ export const signup = async (req: Request, res: Response) => {
       statusMessage: StatusMessages[Status.Success],
       message: "Account created successfully",
       username: newUser.username,
-      userId: newUser.id
+      userId: newUser.id,
     });
     return;
   } catch (error) {
@@ -83,7 +83,7 @@ export const signin = async (req: Request, res: Response) => {
     res.status(Status.InvalidInput).json({
       status: Status.InvalidInput,
       statusMessage: StatusMessages[Status.InvalidInput],
-      message: validation.error.errors.map(err => err.message).join(", "),
+      message: validation.error.errors.map((err) => err.message).join(", "),
     });
     return;
   }
@@ -131,7 +131,7 @@ export const signin = async (req: Request, res: Response) => {
       statusMessage: StatusMessages[Status.Success],
       message: "Signed in successfully",
       username: user.username,
-      userId: user.id
+      userId: user.id,
     });
     return;
   } catch (error) {

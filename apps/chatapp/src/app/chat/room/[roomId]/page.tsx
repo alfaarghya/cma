@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import 'remixicon/fonts/remixicon.css'
+import "remixicon/fonts/remixicon.css";
 import { Message } from "@cma/types/clientTypes";
 import api from "../../../../libs/axios";
 import { useWebSocket } from "../../../../libs/socket";
@@ -62,10 +62,9 @@ const RoomPage = () => {
   return (
     <div className="flex flex-col h-full p-4">
       <div className="flex-1 space-y-2 overflow-y-auto mb-4">
-        {
-          messages.map((msg, i) =>
-            <RenderMessage key={i} msg={msg} i={i} currentUserId={currentUserId} />)
-        }
+        {messages.map((msg, i) => (
+          <RenderMessage key={i} msg={msg} i={i} currentUserId={currentUserId} />
+        ))}
       </div>
 
       <div className="flex gap-2">
@@ -82,6 +81,6 @@ const RoomPage = () => {
       </div>
     </div>
   );
-}
+};
 
 export default RoomPage;

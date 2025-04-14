@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useUsername } from "../../hooks/useUsername";
 
-
 const LoginLogoutButton = () => {
   const { username, logout } = useUsername();
   const router = useRouter();
@@ -39,4 +38,4 @@ const LoginLogoutButton = () => {
   );
 };
 
-export default LoginLogoutButton
+export default LoginLogoutButton;

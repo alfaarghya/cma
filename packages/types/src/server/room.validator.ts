@@ -9,7 +9,7 @@ export const CreateRoomSchema = z.object({
 //validation for joining room
 export const JoinRoomSchema = z.object({
   roomName: z.string().min(3, "Room name must be at least 3 characters long"),
-  userId: z.string().uuid("user id is required")
+  userId: z.string().uuid("user id is required"),
 });
 
 //validate update room
@@ -28,5 +28,5 @@ export const DeleteRoomSchema = z.object({
 
 //validate get Room details
 export const GetRoomDetailsSchema = z.object({
-  roomId: z.string().uuid("room ID is required required")
-})
+  roomId: z.string().uuid("room ID is required required"),
+});

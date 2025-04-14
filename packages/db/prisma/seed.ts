@@ -89,7 +89,7 @@ async function main() {
 
   console.log("✅ Users added to rooms!");
 
-  // Create Messages 
+  // Create Messages
   await prisma.message.createMany({
     data: [
       {
@@ -147,7 +147,6 @@ async function main() {
     ],
   });
   console.log("✅ Direct messages between Alice and Bob created!");
-
 
   console.log("🎉 Database seeding completed!");
 }
