@@ -5,7 +5,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "db:migrate": "cd packages/db && yarn prisma migrate dev --name init && cd ../..",
+    "db:migrate": "cd packages/db && yarn prisma migrate dev && cd ../..",
     "db:generate": "cd packages/db && yarn prisma generate && cd ../..",
     "db:seed": "cd packages/db && yarn prisma db seed && cd ../..",
     "db:show": "cd packages/db && yarn prisma studio && cd ../..",
